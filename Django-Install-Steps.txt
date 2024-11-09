@@ -144,6 +144,26 @@ def post_list(request):
 
 42. Check the browser to see that posts are displaying in the HTML
 
+43. Add the following to a .gitignore file in the root to ignore all dependency files from libs:
+
+# python
+*.pyc
+__pycache__
+# my venv
+fp
+.env
+ 
+# macOS
+._*
+.DS_Store
+.fseventsd
+.Spotlight-V100
+ 
+# Visual Studio
+.vscode/
+.history/
+*.code-workspace
+
 43. Research forms (getting input from users) and querysets (filtering data from the database)
 
 
