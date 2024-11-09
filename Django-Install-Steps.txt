@@ -1,0 +1,176 @@
+1. Make new GitHub repo
+2. Go to local Windows folder and use command in CMD Terminal: git clone <gitrepo-url>
+3. Open in VS Code with "code ."
+4. Make new virtual environment with command: python -m venv classvenv
+5. Activate the environment using command "classvenv\Scripts\Activate" 
+6. Make a txt file called "requirements.txt" in the local folder, in the file add "Django" then in Terminal run "pip install -r requirements.txt"
+7. "pip show Django" will prove that Django is installed
+8. Make new Django project with command: "django-admin startproject mysite ."
+9. Check you have 2 folders: classmenv and mysite and then a manage.py in the root
+10. Navigate to the mysite/settings.py and edit ALLOWED_HOSTS to have 'localhost' and '127.0.0.1' in the [] array
+11. In same settings.py file go to where STATIC_URL and add a new line under for: STATIC_ROOT = BASE_DIR / 'static'
+12. in Terminal run "py manage.py migrate" to setup the database with sqlite
+13. Check a "db.sqlite3" file now exists in the root
+14. Run project test with "py manage.py runserver". Ctrl break to stop afterwards
+15. Make new app called "blog" in your Django folders with command "py manage.py startapp blog"
+16. Go to mysite\settings.py and navigate to INSTALLED_APPS and add app name: 'blog'
+17. Go to blog\models.py to begin adding data models for the database
+18. Add following imports:
+
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+19. Add a model called Post:
+
+class Post(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    text = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+    published_date = models.DateTimeField(blank=True, null=True)
+
+20. Add methods to the Post class for query sets:
+
+def publish(self):
+        self.published_date = timezone.now()
+        self.save()
+    def __str__(self):
+        return self.title
+
+21. Go back to terminal and migrate model with command "py manage.py makemigrations blog"
+21. Now perform the actual migration with command "py manage.py migrate"
+22. Check model is created going to blog\admin.py and add:
+
+from blog.models import Post
+
+admin.site.register(Post)
+
+23. Check browser for admin page working with address 127.0.0.1:8000/admin
+
+24. Back in Terminal, make a superuser with command: py manage.py createsuperuser
+
+25. Setup preferred username etc
+
+26. Test login via browser. (Ensure server is running with command "py manage.py runserver" )
+
+27. Use the browser to add a new instance of the Blog post object. Provide an Author, Title, Text then click Save
+
+28. Repeat adding posts a few more times so there are multiple Posts made
+
+29. Customise the admin display page by going to blog\admin.py and change it to the following:
+
+from django.contrib import admin
+
+# Register your models here.
+from blog.models import Post
+
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'created_date')
+
+admin.site.register(Post, PostAdmin)
+
+30. Go to blog\views.py and add a new view to display all the Posts made in the database:
+
+from django.shortcuts import render
+from django.http import HttpResponse
+
+# Create your views here.
+def post_list(request):
+    return HttpResponse("Hello, World!")
+
+31. Make a new file in blog app folder called "urls.py"
+32. Add following to urls.py:
+
+from django.urls import path
+from blog import views
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+]
+
+33. Now navigate to the other urls.py in the mysite app (main app) and add the blog url as such:
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('blog/', include('blog.urls')),
+]
+
+34. Check the site address on your browser for a "Hello, World" message: http://127.0.0.1:8000/blog/
+
+35. Edit the blog\views.py so it had the query set:
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from blog.models import Post
+
+# Create your views here.
+def post_list(request):
+    posts = Post.objects.all()
+    return HttpResponse(f"List of posts: {posts}")
+
+36. Make a new folder in the blog\ app folder called "templates"
+37. Make a new folder in the templates folder called "blog"
+38. Make a new file called "post_list.html" inside the blog\templates\blog folder
+39. In this new file type at the start "<html5" to auto-generate a boiler HTML code
+40. Navigate to blog\views.py and add in the following:
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse
+from blog.models import Post
+
+# Create your views here.
+def post_list(request):
+    posts = Post.objects.all()
+    return render(request, 'blog/post_list.html', {'posts':posts})
+
+41. Edit your post_list.html file to have the following in the body tag:
+
+{% block content %}
+            <h1>Blog Posts</h1>
+            <ul class="list-group">
+            {% for post in posts %}
+                <li class="list-group-item">
+                <h2>{{ post.title }}</h2>
+                <p>{{ post.content|truncatewords:30 }}</p>
+                <a href="" class="btn btn-primary">Read More</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endblock %}
+
+42. Check the browser to see that posts are displaying in the HTML
+
+43. Research forms (getting input from users) and querysets (filtering data from the database)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
